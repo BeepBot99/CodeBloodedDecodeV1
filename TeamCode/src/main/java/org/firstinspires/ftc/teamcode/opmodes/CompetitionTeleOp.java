@@ -15,6 +15,7 @@ import dev.nextftc.hardware.impl.IMUEx;
 import dev.nextftc.hardware.impl.MotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 @TeleOp(name = "TeleOp")
 @Config
@@ -22,11 +23,11 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public CompetitionTeleOp() {
         addComponents(
                 BindingsComponent.INSTANCE,
-                new SubsystemComponent(Intake.INSTANCE)
+                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE)
         );
     }
 
-    public static double scalar = 0.5;
+    public static double scalar = 1;
 
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
             .brakeMode();
@@ -66,12 +67,20 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
         Gamepads.gamepad1().circle().whenBecomesTrue(imu::zero);
 
-        Gamepads.gamepad1().rightBumper().whenBecomesTrue(Intake.on);
-        Gamepads.gamepad1().leftBumper().whenBecomesTrue(Intake.off);
+        Gamepads.gamepad1().rightBumper()
+                .toggleOnBecomesTrue()
+                .whenBecomesTrue(Intake.on)
+                .whenBecomesFalse(Intake.off);
 
-        Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(Paddle.up);
-        Gamepads.gamepad1().leftTrigger().greaterThan(0.1).whenBecomesTrue(Paddle.down);
+        Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(Paddle.up.thenWait(0.25).then(Paddle.down));
 
+        Gamepads.gamepad1().triangle()
+                .toggleOnBecomesTrue()
+                .whenBecomesTrue(() -> Shooter.INSTANCE.target = Shooter.onTarget)
+                .whenBecomesFalse(() -> Shooter.INSTANCE.target = 0);
+
+        Gamepads.gamepad1().leftBumper()
+                .whenTrue(Intake.reverse);
     }
 
     @Override

@@ -5,7 +5,9 @@ import com.acmerobotics.dashboard.config.Config;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.hardware.impl.CRServoEx;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.impl.ServoEx;
 import dev.nextftc.hardware.powerable.SetPower;
 
 @Config
@@ -15,14 +17,23 @@ public class Intake implements Subsystem {
     private Intake() {
     }
 
-    public static double onPower = 0;
-
     private static final MotorEx intakeMotor = new MotorEx("intake");
+    private static final CRServoEx transferServo = new CRServoEx("transferServo");
 
-    // TODO: replace with SetPower
-    public static final Command on = new InstantCommand(() -> intakeMotor.setPower(onPower)).requires(intakeMotor);
+    public static final Command on = new InstantCommand(() -> {
+        intakeMotor.setPower(-1);
+        transferServo.setPower(-1);
+    });
 
-    public static final Command off = new SetPower(intakeMotor, 0).requires(intakeMotor);
+    public static final Command off = new InstantCommand(() -> {
+        intakeMotor.setPower(0);
+        transferServo.setPower(0);
+    });
+
+    public static final Command reverse = new InstantCommand(() -> {
+        intakeMotor.setPower(1);
+        transferServo.setPower(1);
+    });
 
     @Override
     public void periodic() {
