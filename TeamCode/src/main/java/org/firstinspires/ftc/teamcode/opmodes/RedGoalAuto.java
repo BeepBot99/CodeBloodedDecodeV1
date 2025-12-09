@@ -31,7 +31,7 @@ public class RedGoalAuto extends NextFTCOpMode {
     @Override
     public void onInit() {
         paths = new Paths(PedroComponent.follower());
-        PedroComponent.follower().setStartingPose(new Pose(120, 125, Math.toRadians(36.5)));
+        PedroComponent.follower().setStartingPose(new Pose(118.68354430379748, 128, Math.toRadians(36.5)));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class RedGoalAuto extends NextFTCOpMode {
             toFirstShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(120.000, 125.000), new Pose(102.000, 100.000))
+                            new BezierLine(new Pose(118.68354430379748, 128.000), new Pose(102.000, 100.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(36.5), Math.toRadians(45))
                     .build();
@@ -91,11 +91,11 @@ public class RedGoalAuto extends NextFTCOpMode {
             toThirdShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000), new Pose(100.000, 59.500))
+                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 59.500))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(100.000, 59.500), new Pose(125.000, 59.500))
+                            new BezierLine(new Pose(96, 59.500), new Pose(125.000, 59.500))
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addPath(
