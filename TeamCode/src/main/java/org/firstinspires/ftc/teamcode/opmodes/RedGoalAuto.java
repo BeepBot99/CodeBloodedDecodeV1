@@ -11,6 +11,7 @@ import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
+import org.firstinspires.ftc.teamcode.CurrentPosition;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
@@ -55,6 +56,11 @@ public class RedGoalAuto extends NextFTCOpMode {
                 Intake.off,
                 new FollowPath(paths.leave)
         ).schedule();
+    }
+
+    @Override
+    public void onUpdate() {
+        CurrentPosition.pose = PedroComponent.follower().getPose();
     }
 
     public static class Paths {

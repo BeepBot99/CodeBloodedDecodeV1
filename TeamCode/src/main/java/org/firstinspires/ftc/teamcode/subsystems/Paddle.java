@@ -6,6 +6,7 @@ import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.hardware.impl.ServoEx;
+import org.jetbrains.annotations.Contract;
 
 @Config
 public class Paddle {
