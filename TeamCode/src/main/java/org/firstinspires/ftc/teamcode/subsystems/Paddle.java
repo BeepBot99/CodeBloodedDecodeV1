@@ -1,24 +1,41 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.Servo;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
-import dev.nextftc.hardware.impl.ServoEx;
-import org.jetbrains.annotations.Contract;
+import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.ftc.ActiveOpMode;
 
 @Config
-public class Paddle {
+public class Paddle implements Subsystem {
+    public static final Paddle INSTANCE = new Paddle();
+
+    private Paddle() {
+    }
+
     public static double upPosition = 0.57;
     public static double downPosition = 0.92;
 
-    private static final ServoEx paddleServo = new ServoEx("paddle");
+    private static Servo paddleServo;
 
-    public static final Command up = new InstantCommand(() -> paddleServo.setPosition(upPosition)).requires(paddleServo);
-    public static final Command down = new InstantCommand(() -> paddleServo.setPosition(downPosition)).requires(paddleServo);
+    public static final Command up = new InstantCommand(() -> paddleServo.setPosition(upPosition));
+    public static final Command down = new InstantCommand(() -> paddleServo.setPosition(downPosition));
 
     public static Command shoot() {
-        return new SequentialGroup(up, new Delay(0.25), down, new Delay(1.5));
+        return new SequentialGroup(up, new Delay(0.25), down);
+    }
+
+    @Override
+    public void initialize() {
+        paddleServo = ActiveOpMode.hardwareMap().get(Servo.class, "paddle");
+    }
+
+    @Override
+    public void periodic() {
+        FtcDashboard.getInstance().getTelemetry().addData("Paddle Servo Position", paddleServo.getPosition());
     }
 }

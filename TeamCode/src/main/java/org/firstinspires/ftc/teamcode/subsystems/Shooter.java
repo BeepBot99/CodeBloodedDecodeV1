@@ -12,7 +12,7 @@ public class Shooter implements Subsystem {
     private Shooter() {
     }
 
-    private final MotorEx shooterMotor = new MotorEx("shooter");
+    public final MotorEx shooterMotor = new MotorEx("shooter");
 
     public double target = 0;
     public static double onTarget = -1700;
