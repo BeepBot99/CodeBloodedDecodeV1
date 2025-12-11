@@ -26,7 +26,7 @@ public class BlueCloseLeave extends NextFTCOpMode {
     public void onInit() {
         paths = new Paths(PedroComponent.follower());
         PedroComponent.follower().setStartingPose(new Pose(118.684, 128.000, Math.toRadians(36.5)).mirror());
-        Globals.alliance = Globals.Alliance.RED;
+        Globals.alliance = Globals.Alliance.BLUE;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class BlueCloseLeave extends NextFTCOpMode {
                     .addPath(
                             new BezierLine(new Pose(118.684, 128.000).mirror(), new Pose(118.684, 100.000).mirror())
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(36.5))
+                    .setConstantHeadingInterpolation(Math.toRadians(180 - 36.5))
                     .build();
         }
     }

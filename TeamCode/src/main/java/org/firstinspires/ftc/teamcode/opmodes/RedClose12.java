@@ -21,10 +21,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Autonomous(name = "Blue Close 9", preselectTeleOp = "TeleOp")
-public class BlueClose9 extends NextFTCOpMode {
+@Autonomous(name = "Red Close 12", preselectTeleOp = "TeleOp")
+public class RedClose12 extends NextFTCOpMode {
 
-    public BlueClose9() {
+    public RedClose12() {
         addComponents(
                 new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
                 new PedroComponent(Constants::createFollower)
@@ -36,11 +36,11 @@ public class BlueClose9 extends NextFTCOpMode {
     @Override
     public void onInit() {
         paths = new Paths(PedroComponent.follower());
-        PedroComponent.follower().setStartingPose(new Pose(118.68354430379748, 128, Math.toRadians(36.5)).mirror());
+        PedroComponent.follower().setStartingPose(new Pose(118.68354430379748, 128, Math.toRadians(36.5)));
         Shooter.INSTANCE.target = 0;
         Paddle.down.schedule();
         Intake.off.schedule();
-        Globals.alliance = Globals.Alliance.BLUE;
+        Globals.alliance = Globals.Alliance.RED;
     }
 
     @Override
@@ -69,6 +69,13 @@ public class BlueClose9 extends NextFTCOpMode {
                 Paddle.shoot(),
                 new Delay(0.67),
                 Paddle.shoot(),
+                new FollowPath(paths.toFourthShoot),
+                new Delay(0.5),
+                Paddle.shoot(),
+                new Delay(0.67),
+                Paddle.shoot(),
+                new Delay(0.67),
+                Paddle.shoot(),
                 new InstantCommand(() -> Shooter.INSTANCE.target = 0),
                 Intake.off,
                 new FollowPath(paths.leave)
@@ -82,62 +89,81 @@ public class BlueClose9 extends NextFTCOpMode {
     }
 
     public static class Paths {
-        public PathChain toFirstShoot;
-        public PathChain toSecondShoot;
-        public PathChain toThirdShoot;
-        public PathChain leave;
+        public final PathChain toFirstShoot;
+        public final PathChain toSecondShoot;
+        public final PathChain toThirdShoot;
+        public final PathChain toFourthShoot;
+        public final PathChain leave;
 
         public Paths(Follower follower) {
             toFirstShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(118.68354430379748, 128.000).mirror(), new Pose(97.000, 95.000).mirror())
+                            new BezierLine(new Pose(118.68354430379748, 128.000), new Pose(97.000, 95.000))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(180 - 36.5), Math.toRadians(135))
+                    .setLinearHeadingInterpolation(Math.toRadians(36.5), Math.toRadians(45))
                     .build();
 
             toSecondShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(97, 95).mirror(), new Pose(95.000, 83.500).mirror())
+                            new BezierLine(new Pose(97, 95), new Pose(95.000, 83.500))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                    .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(95.000, 83.500).mirror(), new Pose(124.000, 83.500).mirror())
+                            new BezierLine(new Pose(95.000, 83.500), new Pose(124.000, 83.500))
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierLine(new Pose(124.000, 83.500).mirror(), new Pose(102.000, 100.000).mirror())
+                            new BezierLine(new Pose(124.000, 83.500), new Pose(102.000, 100.000))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
                     .build();
 
             toThirdShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 59.500).mirror())
+                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 59.500))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                    .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(96, 59.500).mirror(), new Pose(124.000, 59.500).mirror())
+                            new BezierLine(new Pose(96, 59.500), new Pose(124.000, 59.500))
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierCurve(new Pose(124.000, 59.500).mirror(), new Pose(88, 65).mirror(), new Pose(102.000, 100.000).mirror())
+                            new BezierCurve(new Pose(124.000, 59.500), new Pose(88, 65), new Pose(102.000, 100.000))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                    .addParametricCallback(0, () -> follower.setMaxPower(1))
+                    .build();
+
+            toFourthShoot = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 35.000))
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                    .addPath(
+                            new BezierLine(new Pose(96.000, 35.000), new Pose(124.000, 35.000))
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(0))
+                    .addParametricCallback(0, () -> follower.setMaxPower(0.5))
+                    .addPath(
+                            new BezierLine(new Pose(124.000, 35.000), new Pose(102.000, 100.000))
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
                     .build();
 
             leave = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(109.000, 88.000).mirror())
+                            new BezierLine(new Pose(102.000, 100.000), new Pose(109.000, 88.000))
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(135))
+                    .setConstantHeadingInterpolation(Math.toRadians(45))
                     .build();
         }
     }

@@ -21,10 +21,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Autonomous(name = "Blue Close 9", preselectTeleOp = "TeleOp")
-public class BlueClose9 extends NextFTCOpMode {
+@Autonomous(name = "Blue Close 12", preselectTeleOp = "TeleOp")
+public class BlueClose12 extends NextFTCOpMode {
 
-    public BlueClose9() {
+    public BlueClose12() {
         addComponents(
                 new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
                 new PedroComponent(Constants::createFollower)
@@ -69,6 +69,13 @@ public class BlueClose9 extends NextFTCOpMode {
                 Paddle.shoot(),
                 new Delay(0.67),
                 Paddle.shoot(),
+                new FollowPath(paths.toFourthShoot),
+                new Delay(0.5),
+                Paddle.shoot(),
+                new Delay(0.67),
+                Paddle.shoot(),
+                new Delay(0.67),
+                Paddle.shoot(),
                 new InstantCommand(() -> Shooter.INSTANCE.target = 0),
                 Intake.off,
                 new FollowPath(paths.leave)
@@ -82,10 +89,11 @@ public class BlueClose9 extends NextFTCOpMode {
     }
 
     public static class Paths {
-        public PathChain toFirstShoot;
-        public PathChain toSecondShoot;
-        public PathChain toThirdShoot;
-        public PathChain leave;
+        public final PathChain toFirstShoot;
+        public final PathChain toSecondShoot;
+        public final PathChain toThirdShoot;
+        public final PathChain toFourthShoot;
+        public final PathChain leave;
 
         public Paths(Follower follower) {
             toFirstShoot = follower
@@ -127,6 +135,24 @@ public class BlueClose9 extends NextFTCOpMode {
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
                             new BezierCurve(new Pose(124.000, 59.500).mirror(), new Pose(88, 65).mirror(), new Pose(102.000, 100.000).mirror())
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    .addParametricCallback(0, () -> follower.setMaxPower(1))
+                    .build();
+
+            toFourthShoot = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 35.000).mirror())
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                    .addPath(
+                            new BezierLine(new Pose(96.000, 35.000).mirror(), new Pose(124.000, 35.000).mirror())
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .addParametricCallback(0, () -> follower.setMaxPower(0.5))
+                    .addPath(
+                            new BezierLine(new Pose(124.000, 35.000).mirror(), new Pose(102.000, 100.000).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
