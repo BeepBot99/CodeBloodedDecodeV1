@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Autonomous(name = "Blue Close 9")
+@Autonomous(name = "Blue Close 9", preselectTeleOp = "TeleOp")
 public class BlueClose9 extends NextFTCOpMode {
 
     public BlueClose9() {

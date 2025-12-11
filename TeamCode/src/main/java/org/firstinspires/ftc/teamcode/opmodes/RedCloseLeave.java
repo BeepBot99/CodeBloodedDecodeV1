@@ -12,9 +12,9 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Far Leave", preselectTeleOp = "TeleOp")
-public class RedFarLeave extends NextFTCOpMode {
-    public RedFarLeave() {
+@Autonomous(name = "Red Close Leave", preselectTeleOp = "TeleOp")
+public class RedCloseLeave extends NextFTCOpMode {
+    public RedCloseLeave() {
         addComponents(
                 new PedroComponent(Constants::createFollower)
         );
@@ -25,7 +25,7 @@ public class RedFarLeave extends NextFTCOpMode {
     @Override
     public void onInit() {
         paths = new Paths(PedroComponent.follower());
-        PedroComponent.follower().setStartingPose(new Pose(87, 9, Math.toRadians(90)));
+        PedroComponent.follower().setStartingPose(new Pose(118.684, 128.000, Math.toRadians(36.5)));
         Globals.alliance = Globals.Alliance.RED;
     }
 
@@ -48,11 +48,13 @@ public class RedFarLeave extends NextFTCOpMode {
             leave = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(87.000, 9.000), new Pose(87.000, 33.000))
+                            new BezierLine(new Pose(118.684, 128.000), new Pose(118.684, 100.000))
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(90))
+                    .setConstantHeadingInterpolation(Math.toRadians(36.5))
                     .build();
         }
     }
+
+
 
 }
