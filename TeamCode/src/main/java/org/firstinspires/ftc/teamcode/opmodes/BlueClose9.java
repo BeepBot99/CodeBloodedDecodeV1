@@ -15,16 +15,16 @@ import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
-import org.firstinspires.ftc.teamcode.CurrentPosition;
+import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Autonomous(name = "Red Goal Auto")
-public class RedGoalAuto extends NextFTCOpMode {
+@Autonomous(name = "Blue Close 9")
+public class BlueClose9 extends NextFTCOpMode {
 
-    public RedGoalAuto() {
+    public BlueClose9() {
         addComponents(
                 new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
                 new PedroComponent(Constants::createFollower)
@@ -36,10 +36,11 @@ public class RedGoalAuto extends NextFTCOpMode {
     @Override
     public void onInit() {
         paths = new Paths(PedroComponent.follower());
-        PedroComponent.follower().setStartingPose(new Pose(118.68354430379748, 128, Math.toRadians(36.5)));
+        PedroComponent.follower().setStartingPose(new Pose(118.68354430379748, 128, Math.toRadians(36.5)).mirror());
         Shooter.INSTANCE.target = 0;
         Paddle.down.schedule();
         Intake.off.schedule();
+        Globals.alliance =  Globals.Alliance.BLUE;
     }
 
     @Override
@@ -76,7 +77,7 @@ public class RedGoalAuto extends NextFTCOpMode {
 
     @Override
     public void onUpdate() {
-        CurrentPosition.pose = PedroComponent.follower().getPose();
+        Globals.pose = PedroComponent.follower().getPose();
         FtcDashboard.getInstance().getTelemetry().update();
     }
 
@@ -90,7 +91,7 @@ public class RedGoalAuto extends NextFTCOpMode {
             toFirstShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(118.68354430379748, 128.000), new Pose(97.000, 95.000))
+                            new BezierLine(new Pose(118.68354430379748, 128.000).mirror(), new Pose(97.000, 95.000).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(36.5), Math.toRadians(45))
                     .build();
@@ -98,16 +99,16 @@ public class RedGoalAuto extends NextFTCOpMode {
             toSecondShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(97, 95), new Pose(95.000, 83.500))
+                            new BezierLine(new Pose(97, 95).mirror(), new Pose(95.000, 83.500).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(95.000, 83.500), new Pose(124.000, 83.500))
+                            new BezierLine(new Pose(95.000, 83.500).mirror(), new Pose(124.000, 83.500).mirror())
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierLine(new Pose(124.000, 83.500), new Pose(102.000, 100.000))
+                            new BezierLine(new Pose(124.000, 83.500).mirror(), new Pose(102.000, 100.000).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
@@ -116,16 +117,16 @@ public class RedGoalAuto extends NextFTCOpMode {
             toThirdShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 59.500))
+                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 59.500).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(96, 59.500), new Pose(124.000, 59.500))
+                            new BezierLine(new Pose(96, 59.500).mirror(), new Pose(124.000, 59.500).mirror())
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierCurve(new Pose(124.000, 59.500), new Pose(88, 65), new Pose(102.000, 100.000))
+                            new BezierCurve(new Pose(124.000, 59.500).mirror(), new Pose(88, 65).mirror(), new Pose(102.000, 100.000).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
@@ -134,7 +135,7 @@ public class RedGoalAuto extends NextFTCOpMode {
             leave = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000), new Pose(109.000, 88.000))
+                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(109.000, 88.000).mirror())
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(45))
                     .build();

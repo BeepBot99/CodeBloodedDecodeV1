@@ -8,6 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
@@ -17,7 +18,8 @@ import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.Direction;
 import dev.nextftc.hardware.impl.IMUEx;
 import dev.nextftc.hardware.impl.MotorEx;
-import org.firstinspires.ftc.teamcode.CurrentPosition;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
@@ -60,7 +62,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Gamepads.gamepad1().leftStickX();
         Gamepads.gamepad1().rightStickX();
 
-        PedroComponent.follower().setStartingPose(CurrentPosition.pose);
+        PedroComponent.follower().setStartingPose(Globals.pose);
     }
 
     private DriverControlledCommand driverControlled;
@@ -71,7 +73,9 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
     private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
     private final PIDFController headingController = new PIDFController(headingCoefficients);
-    public static final Pose GOAL_POSE = new Pose(138, 138);
+    private static final Pose RED_GOAL_POSE = new Pose(138, 138);
+    private static final Pose BLUE_GOAL_POSE = new Pose(6, 138);
+    private static final Angle HALF_ANGLE = Angle.fromDeg(180);
 
     @Override
     public void onStartButtonPressed() {
@@ -86,10 +90,11 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                     if (headingMode == HeadingMode.GAMEPAD)
                         return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
                     Pose currentPose = PedroComponent.follower().getPose();
-                    Pose difference = GOAL_POSE.minus(currentPose);
+                    Pose goalPose = Globals.alliance == Globals.Alliance.RED ? RED_GOAL_POSE : BLUE_GOAL_POSE;
+                    Pose difference = goalPose.minus(currentPose);
                     double targetHeading = Math.atan2(difference.getY(), difference.getX());
                     double currentHeading = currentPose.getHeading();
-                    headingController.updateError(targetHeading - currentHeading);
+                    headingController.updateError(AngleUnit.normalizeRadians(targetHeading - currentHeading));
 
                     FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(currentHeading));
                     FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(targetHeading));
@@ -98,7 +103,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
                     return -headingController.run();
                 },
-                new FieldCentric(imu)
+                new FieldCentric(() -> Globals.alliance == Globals.Alliance.RED ? imu.get() : imu.get().plus(HALF_ANGLE))
         );
 
         driverControlled.schedule();
@@ -128,6 +133,9 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
         Gamepads.gamepad2().cross()
                 .whenBecomesTrue(() -> PedroComponent.follower().setPose(new Pose(135, 8, Math.PI)));
+
+        Gamepads.gamepad2().leftBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.RED);
+        Gamepads.gamepad2().rightBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.BLUE);
     }
 
     @Override
@@ -136,6 +144,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         driverControlled.setScalar(scalar);
         FtcDashboard.getInstance().getTelemetry().addData("Heading Mode", headingMode);
         FtcDashboard.getInstance().getTelemetry().update();
-        CurrentPosition.pose = PedroComponent.follower().getPose();
+        Globals.pose = PedroComponent.follower().getPose();
     }
 }
