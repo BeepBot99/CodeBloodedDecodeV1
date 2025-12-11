@@ -65,11 +65,11 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
     private DriverControlledCommand driverControlled;
 
-    public static double headingKp = 0;
+    public static double headingKp = 0.6;
     public static double headingKi = 0;
     public static double headingKd = 0;
 
-    private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd,0);
+    private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
     private final PIDFController headingController = new PIDFController(headingCoefficients);
     public static final Pose GOAL_POSE = new Pose(138, 138);
 
@@ -84,13 +84,19 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 Gamepads.gamepad1().leftStickX().map(x -> Math.pow(x, 2) * Math.signum(x)),
                 () -> {
                     if (headingMode == HeadingMode.GAMEPAD)
-                        return Gamepads.gamepad1().rightStickX().map(x -> Math.pow(x, 2) * Math.signum(x)).get();
+                        return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
                     Pose currentPose = PedroComponent.follower().getPose();
                     Pose difference = GOAL_POSE.minus(currentPose);
                     double targetHeading = Math.atan2(difference.getY(), difference.getX());
                     double currentHeading = currentPose.getHeading();
                     headingController.updateError(targetHeading - currentHeading);
-                    return headingController.run();
+
+                    FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(currentHeading));
+                    FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(targetHeading));
+                    FtcDashboard.getInstance().getTelemetry().addData("Current X", currentPose.getX());
+                    FtcDashboard.getInstance().getTelemetry().addData("Current Y", currentPose.getY());
+
+                    return -headingController.run();
                 },
                 new FieldCentric(imu)
         );
@@ -106,7 +112,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesTrue(Intake.on)
                 .whenBecomesFalse(Intake.off);
 
-        Gamepads.gamepad1().rightTrigger()
+        Gamepads.gamepad1().rightStickX()
                 .inRange(-0.1, 0.1)
                 .whenBecomesFalse(() -> headingMode = HeadingMode.GAMEPAD);
 
