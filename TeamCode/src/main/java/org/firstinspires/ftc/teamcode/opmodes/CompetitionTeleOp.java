@@ -31,7 +31,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public CompetitionTeleOp() {
         addComponents(
                 BindingsComponent.INSTANCE,
-                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE),
+                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
                 new PedroComponent(Constants::createFollower)
         );
     }
@@ -63,6 +63,9 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Gamepads.gamepad1().rightStickX();
 
         PedroComponent.follower().setStartingPose(Globals.pose);
+        Shooter.INSTANCE.target = 0;
+        Intake.off.schedule();
+        Paddle.down.schedule();
     }
 
     private DriverControlledCommand driverControlled;

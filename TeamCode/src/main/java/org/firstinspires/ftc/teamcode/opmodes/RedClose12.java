@@ -52,29 +52,29 @@ public class RedClose12 extends NextFTCOpMode {
                 new WaitUntil(() -> Shooter.INSTANCE.shooterMotor.getVelocity() >= 0.98 * Shooter.onTarget),
                 new Delay(1),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new FollowPath(paths.toSecondShoot),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new FollowPath(paths.toThirdShoot),
                 new Delay(0.5),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new FollowPath(paths.toFourthShoot),
                 new Delay(0.5),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new InstantCommand(() -> Shooter.INSTANCE.target = 0),
                 Intake.off,
@@ -99,13 +99,17 @@ public class RedClose12 extends NextFTCOpMode {
             toFirstShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(118.68354430379748, 128.000), new Pose(97.000, 95.000))
+                            new BezierLine(new Pose(118.68354430379748, 128.000), new Pose(102, 100))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(36.5), Math.toRadians(45))
                     .build();
 
             toSecondShoot = follower
                     .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(102, 100), new Pose(97, 95))
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(45))
                     .addPath(
                             new BezierLine(new Pose(97, 95), new Pose(95.000, 83.500))
                     )
@@ -125,16 +129,16 @@ public class RedClose12 extends NextFTCOpMode {
             toThirdShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 59.500))
+                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 60.5))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(96, 59.500), new Pose(124.000, 59.500))
+                            new BezierLine(new Pose(96, 60.5), new Pose(125.000, 60.5))
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierCurve(new Pose(124.000, 59.500), new Pose(88, 65), new Pose(102.000, 100.000))
+                            new BezierCurve(new Pose(125.000, 60.5), new Pose(88, 65), new Pose(102.000, 100.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
@@ -143,16 +147,16 @@ public class RedClose12 extends NextFTCOpMode {
             toFourthShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 35.000))
+                            new BezierLine(new Pose(102.000, 100.000), new Pose(96.000, 37.5))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                     .addPath(
-                            new BezierLine(new Pose(96.000, 35.000), new Pose(124.000, 35.000))
+                            new BezierLine(new Pose(96.000, 37.5), new Pose(125, 37.5))
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(0))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierLine(new Pose(124.000, 35.000), new Pose(102.000, 100.000))
+                            new BezierLine(new Pose(125, 37.5), new Pose(102.000, 100.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))

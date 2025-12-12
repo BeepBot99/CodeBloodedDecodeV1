@@ -52,29 +52,29 @@ public class BlueClose12 extends NextFTCOpMode {
                 new WaitUntil(() -> Shooter.INSTANCE.shooterMotor.getVelocity() >= 0.98 * Shooter.onTarget),
                 new Delay(1),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new FollowPath(paths.toSecondShoot),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new FollowPath(paths.toThirdShoot),
                 new Delay(0.5),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new FollowPath(paths.toFourthShoot),
                 new Delay(0.5),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
-                new Delay(0.67),
+                new Delay(0.8),
                 Paddle.shoot(),
                 new InstantCommand(() -> Shooter.INSTANCE.target = 0),
                 Intake.off,
@@ -99,13 +99,17 @@ public class BlueClose12 extends NextFTCOpMode {
             toFirstShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(118.68354430379748, 128.000).mirror(), new Pose(97.000, 95.000).mirror())
+                            new BezierLine(new Pose(118.68354430379748, 128.000).mirror(), new Pose(102, 100).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180 - 36.5), Math.toRadians(135))
                     .build();
 
             toSecondShoot = follower
                     .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(102, 100).mirror(), new Pose(97, 95).mirror())
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(135))
                     .addPath(
                             new BezierLine(new Pose(97, 95).mirror(), new Pose(95.000, 83.500).mirror())
                     )
@@ -125,16 +129,16 @@ public class BlueClose12 extends NextFTCOpMode {
             toThirdShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 59.500).mirror())
+                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 60.5).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
                     .addPath(
-                            new BezierLine(new Pose(96, 59.500).mirror(), new Pose(124.000, 59.500).mirror())
+                            new BezierLine(new Pose(96, 60.5).mirror(), new Pose(125.000, 60.5).mirror())
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(180))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierCurve(new Pose(124.000, 59.500).mirror(), new Pose(88, 65).mirror(), new Pose(102.000, 100.000).mirror())
+                            new BezierCurve(new Pose(125.000, 60.5).mirror(), new Pose(88, 65).mirror(), new Pose(102.000, 100.000).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
@@ -143,16 +147,16 @@ public class BlueClose12 extends NextFTCOpMode {
             toFourthShoot = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 35.000).mirror())
+                            new BezierLine(new Pose(102.000, 100.000).mirror(), new Pose(96.000, 37.5).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
                     .addPath(
-                            new BezierLine(new Pose(96.000, 35.000).mirror(), new Pose(124.000, 35.000).mirror())
+                            new BezierLine(new Pose(96.000, 37.5).mirror(), new Pose(125, 37.5).mirror())
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(180))
                     .addParametricCallback(0, () -> follower.setMaxPower(0.5))
                     .addPath(
-                            new BezierLine(new Pose(124.000, 35.000).mirror(), new Pose(102.000, 100.000).mirror())
+                            new BezierLine(new Pose(125, 37.5).mirror(), new Pose(102.000, 100.000).mirror())
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                     .addParametricCallback(0, () -> follower.setMaxPower(1))
