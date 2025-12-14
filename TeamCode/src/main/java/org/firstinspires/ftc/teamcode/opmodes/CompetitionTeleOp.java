@@ -131,8 +131,14 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesTrue(() -> Shooter.INSTANCE.target = Shooter.onTarget)
                 .whenBecomesFalse(() -> Shooter.INSTANCE.target = 0);
 
+        Gamepads.gamepad1().cross()
+                .toggleOnBecomesTrue()
+                .whenBecomesTrue(() -> Shooter.INSTANCE.target = Shooter.reverse)
+                .whenBecomesFalse(() -> Shooter.INSTANCE.target = 0);
+
         Gamepads.gamepad1().leftBumper()
                 .whenTrue(Intake.reverse);
+
 
         Gamepads.gamepad2().cross()
                 .whenBecomesTrue(() -> PedroComponent.follower().setPose(new Pose(135, 8, Math.PI)));

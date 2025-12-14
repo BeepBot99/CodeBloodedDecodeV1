@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 @Autonomous(name = "Blue Close 9", preselectTeleOp = "TeleOp")
-public class BlueClose9 extends NextFTCOpMode {
+public class  BlueClose9 extends NextFTCOpMode {
 
     public BlueClose9() {
         addComponents(
@@ -52,22 +52,22 @@ public class BlueClose9 extends NextFTCOpMode {
                 new WaitUntil(() -> Shooter.INSTANCE.shooterMotor.getVelocity() >= 0.98 * Shooter.onTarget),
                 new Delay(1),
                 Paddle.shoot(),
-                new Delay(0.8),
+                new Delay(0.75),
                 Paddle.shoot(),
-                new Delay(0.8),
+                new Delay(1.5),
                 Paddle.shoot(),
                 new FollowPath(paths.toSecondShoot),
                 Paddle.shoot(),
-                new Delay(0.8),
+                new Delay(0.75),
                 Paddle.shoot(),
-                new Delay(0.8),
+                new Delay(1.5),
                 Paddle.shoot(),
                 new FollowPath(paths.toThirdShoot),
                 new Delay(0.5),
                 Paddle.shoot(),
-                new Delay(0.8),
+                new Delay(0.75),
                 Paddle.shoot(),
-                new Delay(0.8),
+                new Delay(1.5),
                 Paddle.shoot(),
                 new InstantCommand(() -> Shooter.INSTANCE.target = 0),
                 Intake.off,

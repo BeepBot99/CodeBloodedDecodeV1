@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
 
@@ -12,10 +15,12 @@ public class Shooter implements Subsystem {
     private Shooter() {
     }
 
-    public final MotorEx shooterMotor = new MotorEx("shooter");
+    public static final MotorEx shooterMotor = new MotorEx("shooter");
 
     public double target = 0;
     public static double onTarget = -1700;
+    public static double reverse = 1700;
+
 
     public static double kP = 0.01;
     public static double kV = 0.00055;
