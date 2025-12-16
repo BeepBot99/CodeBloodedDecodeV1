@@ -15,8 +15,6 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.hardware.driving.DriverControlledCommand;
 import dev.nextftc.hardware.driving.FieldCentric;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
-import dev.nextftc.hardware.impl.Direction;
-import dev.nextftc.hardware.impl.IMUEx;
 import dev.nextftc.hardware.impl.MotorEx;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Globals;
@@ -47,8 +45,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     private final MotorEx backRightMotor = new MotorEx("back_right")
             .brakeMode();
 
-    private final IMUEx imu = new IMUEx("imu", Direction.RIGHT, Direction.UP);
-
     public enum HeadingMode {
         GAMEPAD,
         GOAL
@@ -78,7 +74,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     private final PIDFController headingController = new PIDFController(headingCoefficients);
     private static final Pose RED_GOAL_POSE = new Pose(138, 138);
     private static final Pose BLUE_GOAL_POSE = new Pose(6, 138);
-    private static final Angle HALF_ANGLE = Angle.fromDeg(180);
 
     @Override
     public void onStartButtonPressed() {
@@ -106,12 +101,12 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
                     return -headingController.run();
                 },
-                new FieldCentric(() -> Globals.alliance == Globals.Alliance.RED ? imu.get() : imu.get().plus(HALF_ANGLE))
+                new FieldCentric(() -> Angle.fromRad(Globals.alliance == Globals.Alliance.RED ? PedroComponent.follower().getHeading() : PedroComponent.follower().getHeading() + Math.PI))
         );
 
         driverControlled.schedule();
 
-        Gamepads.gamepad1().circle().whenBecomesTrue(imu::zero);
+        Gamepads.gamepad1().circle().whenBecomesTrue(() -> PedroComponent.follower().setPose(PedroComponent.follower().getPose().withHeading(0)));
 
         Gamepads.gamepad1().square().whenBecomesTrue(() -> headingMode = HeadingMode.GOAL);
 
