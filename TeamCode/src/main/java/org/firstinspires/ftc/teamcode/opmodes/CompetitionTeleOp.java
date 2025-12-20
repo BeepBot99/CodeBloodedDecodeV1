@@ -119,7 +119,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .inRange(-0.1, 0.1)
                 .whenBecomesFalse(() -> headingMode = HeadingMode.GAMEPAD);
 
-        Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(Paddle.up.thenWait(0.25).then(Paddle.down));
+        Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> Paddle.up.thenWait(0.25).then(Paddle.down).schedule());
 
         Gamepads.gamepad1().triangle()
                 .toggleOnBecomesTrue()
