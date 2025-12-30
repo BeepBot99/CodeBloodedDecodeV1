@@ -37,7 +37,7 @@ public class BlueClose12 extends NextFTCOpMode {
     public void onInit() {
         paths = new Paths(PedroComponent.follower());
         PedroComponent.follower().setStartingPose(new Pose(118.68354430379748, 128, Math.toRadians(36.5)).mirror());
-        Shooter.INSTANCE.target = 0;
+        Shooter.mode = Shooter.Mode.OFF;
         Paddle.down.schedule();
         Intake.off.schedule();
         Globals.alliance = Globals.Alliance.BLUE;
@@ -46,7 +46,7 @@ public class BlueClose12 extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         new SequentialGroup(
-                new InstantCommand(() -> Shooter.INSTANCE.target = Shooter.onTarget),
+                new InstantCommand(() -> Shooter.mode = Shooter.Mode.FORWARD),
                 Intake.on,
                 new FollowPath(paths.toFirstShoot),
                 new WaitUntil(() -> Shooter.INSTANCE.shooterMotor.getVelocity() >= 0.98 * Shooter.onTarget),
@@ -76,7 +76,7 @@ public class BlueClose12 extends NextFTCOpMode {
                 Paddle.shoot(),
                 new Delay(1.5),
                 Paddle.shoot(),
-                new InstantCommand(() -> Shooter.INSTANCE.target = 0),
+                new InstantCommand(() -> Shooter.mode = Shooter.Mode.OFF),
                 Intake.off,
                 new FollowPath(paths.leave)
         ).schedule();
@@ -85,6 +85,7 @@ public class BlueClose12 extends NextFTCOpMode {
     @Override
     public void onUpdate() {
         Globals.pose = PedroComponent.follower().getPose();
+        Shooter.setVelocityFromDistance();
         FtcDashboard.getInstance().getTelemetry().update();
     }
 

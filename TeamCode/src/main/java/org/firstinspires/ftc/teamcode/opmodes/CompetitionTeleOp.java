@@ -59,7 +59,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Gamepads.gamepad1().rightStickX();
 
         PedroComponent.follower().setStartingPose(Globals.pose);
-        Shooter.INSTANCE.target = 0;
+        Shooter.mode = Shooter.Mode.OFF;
         Intake.off.schedule();
         Paddle.down.schedule();
     }
@@ -72,8 +72,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
     private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
     private final PIDFController headingController = new PIDFController(headingCoefficients);
-    private static final Pose RED_GOAL_POSE = new Pose(138, 138);
-    private static final Pose BLUE_GOAL_POSE = new Pose(6, 138);
+    public static final Pose RED_GOAL_POSE = new Pose(142, 142);
+    public static final Pose BLUE_GOAL_POSE = new Pose(2, 142);
 
     @Override
     public void onStartButtonPressed() {
@@ -123,13 +123,13 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
         Gamepads.gamepad1().triangle()
                 .toggleOnBecomesTrue()
-                .whenBecomesTrue(() -> Shooter.INSTANCE.target = Shooter.onTarget)
-                .whenBecomesFalse(() -> Shooter.INSTANCE.target = 0);
+                .whenBecomesTrue(() -> Shooter.mode = Shooter.Mode.FORWARD)
+                .whenBecomesFalse(() -> Shooter.mode = Shooter.Mode.OFF);
 
         Gamepads.gamepad1().cross()
                 .toggleOnBecomesTrue()
-                .whenBecomesTrue(() -> Shooter.INSTANCE.target = Shooter.reverse)
-                .whenBecomesFalse(() -> Shooter.INSTANCE.target = 0);
+                .whenBecomesTrue(() -> Shooter.mode = Shooter.Mode.REVERSED)
+                .whenBecomesFalse(() -> Shooter.mode = Shooter.Mode.OFF);
 
         Gamepads.gamepad1().leftBumper()
                 .whenTrue(Intake.reverse);
@@ -147,7 +147,10 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         headingCoefficients.setCoefficients(headingKp, headingKi, headingKd, 0);
         driverControlled.setScalar(scalar);
         FtcDashboard.getInstance().getTelemetry().addData("Heading Mode", headingMode);
-        FtcDashboard.getInstance().getTelemetry().update();
         Globals.pose = PedroComponent.follower().getPose();
+
+        Shooter.setVelocityFromDistance();
+
+        FtcDashboard.getInstance().getTelemetry().update();
     }
 }
