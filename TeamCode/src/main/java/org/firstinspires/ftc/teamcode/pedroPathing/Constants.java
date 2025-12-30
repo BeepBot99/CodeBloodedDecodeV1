@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -20,9 +20,12 @@ public class Constants {
             .mass(11.3398)
             .forwardZeroPowerAcceleration(-38.4546)
             .lateralZeroPowerAcceleration(-80.5013)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.0085, 0))
+//            .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.0085, 0))
             .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.004, 0.05))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.028, 0, 0.00003, 0.6, 0.01));
+//            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.028, 0, 0.00003, 0.6, 0.01))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.3, 0.130321502495767, 0.0011079049823178753, 0.2));
+    // kFriction: 0.0011079049823178753
+    // kBraking: 0.130321502495767
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)

@@ -6,6 +6,7 @@ import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.core.units.Angle;
@@ -75,6 +76,15 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public static final Pose RED_GOAL_POSE = new Pose(142, 142);
     public static final Pose BLUE_GOAL_POSE = new Pose(2, 142);
 
+    private static final Gamepad.RumbleEffect rumble = new Gamepad.RumbleEffect.Builder()
+            .addStep(0.3, 0.3, 50)
+            .addStep(0, 0, 50)
+            .addStep(0.3, 0.3, 50)
+            .addStep(0, 0, 50)
+            .addStep(0.3, 0.3, 50)
+            .addStep(0, 0, 0)
+            .build();
+
     @Override
     public void onStartButtonPressed() {
         driverControlled = new MecanumDriverControlled(
@@ -119,7 +129,10 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .inRange(-0.1, 0.1)
                 .whenBecomesFalse(() -> headingMode = HeadingMode.GAMEPAD);
 
-        Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> Paddle.up.thenWait(0.25).then(Paddle.down).schedule());
+        Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> {
+            Paddle.up.thenWait(0.25).then(Paddle.down).schedule();
+            gamepad1.runRumbleEffect(rumble);
+        });
 
         Gamepads.gamepad1().triangle()
                 .toggleOnBecomesTrue()

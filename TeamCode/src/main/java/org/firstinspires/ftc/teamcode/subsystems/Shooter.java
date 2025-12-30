@@ -31,9 +31,9 @@ public class Shooter implements Subsystem {
     public static Mode mode = Mode.OFF;
 
 
-    public static double kP = 0.01;
-    public static double kV = 0.00055;
-    public static double kS = 0.121;
+    public static double kP = 0.025;
+    public static double kV = 0.00048;
+    public static double kS = 0.009;
 
     @Override
     public void periodic() {
