@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
 
 @Autonomous(name = "Blue Close 12", preselectTeleOp = "TeleOp")
 public class BlueClose12 extends NextFTCOpMode {
@@ -49,7 +50,7 @@ public class BlueClose12 extends NextFTCOpMode {
                 new InstantCommand(() -> Shooter.mode = Shooter.Mode.FORWARD),
                 Intake.on,
                 new FollowPath(paths.toFirstShoot),
-                new WaitUntil(() -> Shooter.INSTANCE.shooterMotor.getVelocity() >= 0.98 * Shooter.onTarget),
+                new WaitUntil(() -> Shooter.getVelocity() >= 0.98 * Shooter.onTarget),
                 new Delay(1),
                 Paddle.shoot(),
                 new Delay(0.75),
@@ -85,7 +86,7 @@ public class BlueClose12 extends NextFTCOpMode {
     @Override
     public void onUpdate() {
         Globals.pose = PedroComponent.follower().getPose();
-        Shooter.setVelocityFromDistance();
+        VelocityInterpolator.setVelocityFromLocation();
         FtcDashboard.getInstance().getTelemetry().update();
     }
 

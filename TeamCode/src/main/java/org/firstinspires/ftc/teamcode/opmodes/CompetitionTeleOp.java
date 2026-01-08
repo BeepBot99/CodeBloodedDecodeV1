@@ -23,20 +23,26 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
 
 @TeleOp(name = "TeleOp")
 @Config
 public class CompetitionTeleOp extends NextFTCOpMode {
-    public CompetitionTeleOp() {
-        addComponents(
-                BindingsComponent.INSTANCE,
-                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
-                new PedroComponent(Constants::createFollower)
-        );
-    }
-
+    public static final Pose RED_GOAL_POSE = new Pose(142, 142);
+    public static final Pose BLUE_GOAL_POSE = new Pose(2, 142);
+    private static final Gamepad.RumbleEffect rumble = new Gamepad.RumbleEffect.Builder()
+            .addStep(1, 1, 50)
+            .addStep(0, 0, 50)
+            .addStep(1, 1, 50)
+            .addStep(0, 0, 50)
+            .addStep(1, 1, 50)
+            .addStep(0, 0, 0)
+            .build();
     public static double scalar = 1;
-
+    public static double headingKp = 1;
+    public static double headingKi = 0;
+    public static double headingKd = 0;
+    public static double shooterTolerance = 40;
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
             .brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("front_right")
@@ -45,13 +51,17 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             .brakeMode();
     private final MotorEx backRightMotor = new MotorEx("back_right")
             .brakeMode();
-
-    public enum HeadingMode {
-        GAMEPAD,
-        GOAL
-    }
-
+    private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
+    private final PIDFController headingController = new PIDFController(headingCoefficients);
     private HeadingMode headingMode = HeadingMode.GAMEPAD;
+    private DriverControlledCommand driverControlled;
+    public CompetitionTeleOp() {
+        addComponents(
+                BindingsComponent.INSTANCE,
+                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
+                new PedroComponent(Constants::createFollower)
+        );
+    }
 
     @Override
     public void onInit() {
@@ -65,26 +75,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Paddle.down.schedule();
     }
 
-    private DriverControlledCommand driverControlled;
-
-    public static double headingKp = 0.6;
-    public static double headingKi = 0;
-    public static double headingKd = 0;
-
-    private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
-    private final PIDFController headingController = new PIDFController(headingCoefficients);
-    public static final Pose RED_GOAL_POSE = new Pose(142, 142);
-    public static final Pose BLUE_GOAL_POSE = new Pose(2, 142);
-
-    private static final Gamepad.RumbleEffect rumble = new Gamepad.RumbleEffect.Builder()
-            .addStep(0.3, 0.3, 50)
-            .addStep(0, 0, 50)
-            .addStep(0.3, 0.3, 50)
-            .addStep(0, 0, 50)
-            .addStep(0.3, 0.3, 50)
-            .addStep(0, 0, 0)
-            .build();
-
     @Override
     public void onStartButtonPressed() {
         driverControlled = new MecanumDriverControlled(
@@ -97,17 +87,16 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 () -> {
                     if (headingMode == HeadingMode.GAMEPAD)
                         return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
-                    Pose currentPose = PedroComponent.follower().getPose();
+//                    Pose projectedPose = VelocityInterpolator.predictPosition();
+                    Pose projectedPose = PedroComponent.follower().getPose();
                     Pose goalPose = Globals.alliance == Globals.Alliance.RED ? RED_GOAL_POSE : BLUE_GOAL_POSE;
-                    Pose difference = goalPose.minus(currentPose);
+                    Pose difference = goalPose.minus(projectedPose);
                     double targetHeading = Math.atan2(difference.getY(), difference.getX());
-                    double currentHeading = currentPose.getHeading();
+                    double currentHeading = projectedPose.getHeading();
                     headingController.updateError(AngleUnit.normalizeRadians(targetHeading - currentHeading));
 
                     FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(currentHeading));
                     FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(targetHeading));
-                    FtcDashboard.getInstance().getTelemetry().addData("Current X", currentPose.getX());
-                    FtcDashboard.getInstance().getTelemetry().addData("Current Y", currentPose.getY());
 
                     return -headingController.run();
                 },
@@ -130,8 +119,9 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesFalse(() -> headingMode = HeadingMode.GAMEPAD);
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> {
-            Paddle.up.thenWait(0.25).then(Paddle.down).schedule();
-            gamepad1.runRumbleEffect(rumble);
+            if (Shooter.getVelocity() >= Shooter.onTarget - shooterTolerance)
+                Paddle.up.thenWait(0.25).then(Paddle.down).schedule();
+            else gamepad1.runRumbleEffect(rumble);
         });
 
         Gamepads.gamepad1().triangle()
@@ -145,7 +135,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesFalse(() -> Shooter.mode = Shooter.Mode.OFF);
 
         Gamepads.gamepad1().leftBumper()
-                .whenTrue(Intake.reverse);
+                .whenBecomesTrue(() -> Intake.reverse().schedule());
 
 
         Gamepads.gamepad2().cross()
@@ -162,8 +152,17 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         FtcDashboard.getInstance().getTelemetry().addData("Heading Mode", headingMode);
         Globals.pose = PedroComponent.follower().getPose();
 
-        Shooter.setVelocityFromDistance();
+        VelocityInterpolator.setVelocityFromLocation();
+
+        FtcDashboard.getInstance().getTelemetry().addData("Current X", PedroComponent.follower().getPose().getX());
+        FtcDashboard.getInstance().getTelemetry().addData("Current Y", PedroComponent.follower().getPose().getY());
+
 
         FtcDashboard.getInstance().getTelemetry().update();
+    }
+
+    public enum HeadingMode {
+        GAMEPAD,
+        GOAL
     }
 }

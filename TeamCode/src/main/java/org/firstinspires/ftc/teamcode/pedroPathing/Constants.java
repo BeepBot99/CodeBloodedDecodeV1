@@ -23,9 +23,7 @@ public class Constants {
 //            .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.0085, 0))
             .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.004, 0.05))
 //            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.028, 0, 0.00003, 0.6, 0.01))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.3, 0.130321502495767, 0.0011079049823178753, 0.2));
-    // kFriction: 0.0011079049823178753
-    // kBraking: 0.130321502495767
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.3, 0.130321502495767, 0.0011079049823178753));
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
