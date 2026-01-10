@@ -24,6 +24,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
+//LIMELIGHT
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 @TeleOp(name = "TeleOp")
 @Config
@@ -43,6 +47,10 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public static double headingKi = 0;
     public static double headingKd = 0;
     public static double shooterTolerance = 40;
+
+    //LIMELIGHT
+    private Limelight3A limelight;
+
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
             .brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("front_right")
@@ -69,7 +77,14 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Gamepads.gamepad1().leftStickX();
         Gamepads.gamepad1().rightStickX();
 
+        //PEDRO
         PedroComponent.follower().setStartingPose(Globals.pose);
+
+        // LIMELIGHT
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(100);
+        limelight.start();
+
         Shooter.mode = Shooter.Mode.OFF;
         Intake.off.schedule();
         Paddle.down.schedule();
@@ -190,15 +205,10 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         }
 
         FtcDashboard.getInstance().getTelemetry().addData("Heading Mode", headingMode);
-        Globals.pose = PedroComponent.follower().getPose();
-
-        VelocityInterpolator.setVelocityFromLocation();
-
-        FtcDashboard.getInstance().getTelemetry().addData("Current X", PedroComponent.follower().getPose().getX());
-        FtcDashboard.getInstance().getTelemetry().addData("Current Y", PedroComponent.follower().getPose().getY());
-
 
         FtcDashboard.getInstance().getTelemetry().update();
+
+        VelocityInterpolator.setVelocityFromLocation();
     }
 
     public enum HeadingMode {
