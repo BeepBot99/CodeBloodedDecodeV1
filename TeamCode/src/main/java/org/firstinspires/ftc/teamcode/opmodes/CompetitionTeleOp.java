@@ -149,6 +149,46 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public void onUpdate() {
         headingCoefficients.setCoefficients(headingKp, headingKi, headingKd, 0);
         driverControlled.setScalar(scalar);
+
+
+        //PEDRO
+        Pose pedroPose = PedroComponent.follower().getPose();
+        Globals.pose = pedroPose;
+
+        FtcDashboard.getInstance().getTelemetry().addLine("=== PEDRO POSE ===");
+        FtcDashboard.getInstance().getTelemetry().addData("Pedro X", pedroPose.getX());
+        FtcDashboard.getInstance().getTelemetry().addData("Pedro Y", pedroPose.getY());
+        FtcDashboard.getInstance().getTelemetry().addData(
+                "Pedro Heading (deg)",
+                Math.toDegrees(pedroPose.getHeading())
+        );
+
+
+        //LIMELIGHT
+        LLResult result = limelight.getLatestResult();
+
+        FtcDashboard.getInstance().getTelemetry().addLine("=== LIMELIGHT MT1 ===");
+
+        if (result != null && result.isValid()) {
+            Pose3D botPose = result.getBotpose(); // <-- MT1
+
+            if (botPose != null) {
+                double x = botPose.getPosition().x;
+                double y = botPose.getPosition().y;
+                double headingDeg = botPose.getOrientation().getYaw();
+
+                FtcDashboard.getInstance().getTelemetry().addData("LL X", x);
+                FtcDashboard.getInstance().getTelemetry().addData("LL Y", y);
+                FtcDashboard.getInstance().getTelemetry().addData("LL Heading (deg)", headingDeg);
+                FtcDashboard.getInstance().getTelemetry().addData("Tag Count", result.getFiducialResults().size());
+                FtcDashboard.getInstance().getTelemetry().addData("Staleness (ms)", result.getStaleness());
+            } else {
+                FtcDashboard.getInstance().getTelemetry().addLine("BotPose null");
+            }
+        } else {
+            FtcDashboard.getInstance().getTelemetry().addLine("No AprilTags Visible");
+        }
+
         FtcDashboard.getInstance().getTelemetry().addData("Heading Mode", headingMode);
         Globals.pose = PedroComponent.follower().getPose();
 
