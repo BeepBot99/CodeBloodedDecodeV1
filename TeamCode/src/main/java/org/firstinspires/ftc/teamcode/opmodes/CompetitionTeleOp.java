@@ -185,7 +185,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         FtcDashboard.getInstance().getTelemetry().addLine("=== LIMELIGHT MT1 ===");
 
         if (result != null && result.isValid()) {
-            Pose3D botPose = result.getBotpose(); // <-- MT1
+            Pose3D botPose = result.getBotpose();
 
             if (botPose != null) {
                 double x = botPose.getPosition().x;
