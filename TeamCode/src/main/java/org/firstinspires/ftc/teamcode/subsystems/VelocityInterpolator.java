@@ -28,8 +28,6 @@ public final class VelocityInterpolator {
     );
     public static boolean useRegression = true;
 
-    public static double timeToShoot = 0.4;
-
     @SuppressWarnings("SuspiciousNameCombination")
     public static void setVelocityFromLocation() {
         double x = PedroComponent.follower().getPose().getX();
