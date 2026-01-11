@@ -5,6 +5,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import dev.nextftc.core.components.BindingsComponent;
@@ -18,16 +20,13 @@ import dev.nextftc.hardware.driving.FieldCentric;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
-//LIMELIGHT
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 @TeleOp(name = "TeleOp")
 @Config
@@ -47,10 +46,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public static double headingKi = 0;
     public static double headingKd = 0;
     public static double shooterTolerance = 40;
-
-    //LIMELIGHT
-    private Limelight3A limelight;
-
+    public static boolean useAbsoluteHeading = false;
+    public static double rightStickDeadZone = 0.5;
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
             .brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("front_right")
@@ -61,14 +58,21 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             .brakeMode();
     private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
     private final PIDFController headingController = new PIDFController(headingCoefficients);
-    private HeadingMode headingMode = HeadingMode.GAMEPAD;
+    //LIMELIGHT
+    private Limelight3A limelight;
+    private HeadingMode headingMode;
     private DriverControlledCommand driverControlled;
+
     public CompetitionTeleOp() {
         addComponents(
                 BindingsComponent.INSTANCE,
                 new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
                 new PedroComponent(Constants::createFollower)
         );
+    }
+
+    private static HeadingMode getHeadingMode() {
+        return useAbsoluteHeading ? HeadingMode.ABSOLUTE : HeadingMode.GAMEPAD;
     }
 
     @Override
@@ -88,6 +92,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Shooter.mode = Shooter.Mode.OFF;
         Intake.off.schedule();
         Paddle.down.schedule();
+        headingMode = getHeadingMode();
     }
 
     @Override
@@ -100,20 +105,41 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 Gamepads.gamepad1().leftStickY().negate().map(x -> Math.pow(x, 2) * Math.signum(x)),
                 Gamepads.gamepad1().leftStickX().map(x -> Math.pow(x, 2) * Math.signum(x)),
                 () -> {
-                    if (headingMode == HeadingMode.GAMEPAD)
-                        return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
-//                    Pose projectedPose = VelocityInterpolator.predictPosition();
-                    Pose projectedPose = PedroComponent.follower().getPose();
-                    Pose goalPose = Globals.alliance == Globals.Alliance.RED ? RED_GOAL_POSE : BLUE_GOAL_POSE;
-                    Pose difference = goalPose.minus(projectedPose);
-                    double targetHeading = Math.atan2(difference.getY(), difference.getX());
-                    double currentHeading = projectedPose.getHeading();
-                    headingController.updateError(AngleUnit.normalizeRadians(targetHeading - currentHeading));
+                    switch (headingMode) {
+                        case GAMEPAD:
+                            return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
+                        case GOAL:
+                            Pose currentPose = PedroComponent.follower().getPose();
+                            Pose goalPose = Globals.alliance == Globals.Alliance.RED ? RED_GOAL_POSE : BLUE_GOAL_POSE;
+                            Pose difference = goalPose.minus(currentPose);
+                            double targetHeading = Math.atan2(difference.getY(), difference.getX());
+                            double currentHeading = currentPose.getHeading();
+                            headingController.updateError(AngleUnit.normalizeRadians(targetHeading - currentHeading));
 
-                    FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(currentHeading));
-                    FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(targetHeading));
+                            FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(currentHeading));
+                            FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(targetHeading));
 
-                    return -headingController.run();
+                            return -headingController.run();
+
+                        case ABSOLUTE:
+                            float x = gamepad1.right_stick_x;
+                            float y = -gamepad1.right_stick_y;
+
+                            if (Math.hypot(x, y) < rightStickDeadZone) return 0.0;
+
+                            double angle = Math.atan2(y, x);
+                            if (Globals.alliance == Globals.Alliance.RED) angle -= Math.PI / 2;
+                            else angle += Math.PI / 2;
+                            double current = PedroComponent.follower().getHeading();
+                            headingController.updateError(AngleUnit.normalizeRadians(angle - current));
+
+                            FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(current));
+                            FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(angle));
+
+                            return -headingController.run();
+                        default:
+                            throw new UnsupportedOperationException("Unknown heading mode: " + headingMode);
+                    }
                 },
                 new FieldCentric(() -> Angle.fromRad(Globals.alliance == Globals.Alliance.RED ? PedroComponent.follower().getHeading() : PedroComponent.follower().getHeading() + Math.PI))
         );
@@ -131,7 +157,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
         Gamepads.gamepad1().rightStickX()
                 .inRange(-0.1, 0.1)
-                .whenBecomesFalse(() -> headingMode = HeadingMode.GAMEPAD);
+                .whenBecomesFalse(() -> headingMode = getHeadingMode());
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> {
             if (Shooter.getVelocity() >= Shooter.onTarget - shooterTolerance)
@@ -213,6 +239,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
     public enum HeadingMode {
         GAMEPAD,
-        GOAL
+        GOAL,
+        ABSOLUTE
     }
 }
