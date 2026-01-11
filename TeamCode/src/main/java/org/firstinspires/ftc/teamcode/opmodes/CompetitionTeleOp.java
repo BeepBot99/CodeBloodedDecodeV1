@@ -41,7 +41,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             .addStep(1, 1, 50)
             .addStep(0, 0, 0)
             .build();
-    public static double scalar = 1;
+    private double scalar = 1;
+    public static double slowModeScalar = 0.2;
     public static double headingKp = 1;
     public static double headingKi = 0;
     public static double headingKd = 0;
@@ -184,6 +185,11 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
         Gamepads.gamepad2().leftBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.RED);
         Gamepads.gamepad2().rightBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.BLUE);
+
+        Gamepads.gamepad1().rightStickButton()
+                .toggleOnBecomesTrue()
+                .whenBecomesTrue(() -> scalar = slowModeScalar)
+                .whenBecomesFalse(() -> scalar = 1);
     }
 
     @Override
