@@ -10,7 +10,7 @@ public class Shooter implements Subsystem {
     public static final Shooter INSTANCE = new Shooter();
     public static final MotorEx shooterMotor = new MotorEx("shooter");
     public static double onTarget = 1700;
-    public static double reverse = -1700;
+    public static double reversePower = -0.3;
 
     public static Mode mode = Mode.OFF;
     public static double kP = 0.01;
@@ -35,14 +35,16 @@ public class Shooter implements Subsystem {
                 target = onTarget;
                 break;
             case REVERSED:
-                target = reverse;
+                shooterMotor.setPower(-reversePower);
                 break;
         }
         double currentVelocity = getVelocity();
-        double power = kP * (target - currentVelocity) + kV * target + kS * Math.signum(target);
-        shooterMotor.setPower(-power);
+        if (mode != Mode.REVERSED) {
+            double power = kP * (target - currentVelocity) + kV * target + kS * Math.signum(target);
+            shooterMotor.setPower(-power);
+            FtcDashboard.getInstance().getTelemetry().addData("Shooter Target", target);
+        }
         FtcDashboard.getInstance().getTelemetry().addData("Shooter Velocity", currentVelocity);
-        FtcDashboard.getInstance().getTelemetry().addData("Shooter Target", target);
     }
 
     public enum Mode {
