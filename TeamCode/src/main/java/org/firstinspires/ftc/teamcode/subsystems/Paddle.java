@@ -22,7 +22,10 @@ public class Paddle implements Subsystem {
 
     private static Servo paddleServo;
 
-    public static final Command up = new InstantCommand(() -> paddleServo.setPosition(upPosition));
+    public static final Command up = new InstantCommand(() -> {
+        paddleServo.setPosition(upPosition);
+        TransferDistanceSensor.resetLocked();
+    });
     public static final Command down = new InstantCommand(() -> paddleServo.setPosition(downPosition));
 
     public static Command shoot() {

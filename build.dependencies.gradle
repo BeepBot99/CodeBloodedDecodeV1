@@ -7,6 +7,10 @@ repositories {
     mavenLocal()
 }
 
+configurations.configureEach {
+    resolutionStrategy.cacheChangingModulesFor 67, 'days'
+}
+
 dependencies {
     implementation 'org.firstinspires.ftc:Inspection:11.0.0'
     implementation 'org.firstinspires.ftc:Blocks:11.0.0'

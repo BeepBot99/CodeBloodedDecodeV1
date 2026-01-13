@@ -18,12 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(11.3398)
-            .forwardZeroPowerAcceleration(-38.4546)
-            .lateralZeroPowerAcceleration(-80.5013)
-//            .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.0085, 0))
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.004, 0.05))
-//            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.028, 0, 0.00003, 0.6, 0.01))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.3, 0.130321502495767, 0.0011079049823178753));
+            .headingPIDFCoefficients(new PIDFCoefficients(2, 0, 0.08, 0.02))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.4, 0.08040006101929494, 0.0014481301913960136));
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -35,8 +31,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .yVelocity(75.1077)
-            .xVelocity(60.4781);
+            .yVelocity(52.9886)
+            .xVelocity(69.9018);
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.95,

@@ -23,10 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Paddle;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
+import org.firstinspires.ftc.teamcode.subsystems.*;
 
 @TeleOp(name = "TeleOp")
 @Config
@@ -67,7 +64,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public CompetitionTeleOp() {
         addComponents(
                 BindingsComponent.INSTANCE,
-                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE),
+                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE, TransferDistanceSensor.INSTANCE),
                 new PedroComponent(Constants::createFollower)
         );
     }
@@ -161,7 +158,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesFalse(() -> headingMode = getHeadingMode());
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> {
-            if (Shooter.getVelocity() >= Shooter.onTarget - shooterTolerance)
+            if (Shooter.getVelocity() >= Shooter.onTarget - shooterTolerance && TransferDistanceSensor.hasBall())
                 Paddle.up.thenWait(0.25).then(Paddle.down).schedule();
             else gamepad1.runRumbleEffect(rumble);
         });

@@ -16,19 +16,18 @@ import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.*;
 import com.pedropathing.math.*;
 import com.pedropathing.paths.*;
 import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.*;
 import static com.pedropathing.math.MathFunctions.quadraticFit;
+
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import com.pedropathing.math.MathFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +77,7 @@ public class Tuning extends SelectableOpMode {
                 p.add("Line", Line::new);
                 p.add("Triangle", Triangle::new);
                 p.add("Circle", Circle::new);
+                p.add("Line90DegreeTurn", Line90DegreeTurn::new);
             });
         });
     }
@@ -726,7 +726,7 @@ class LateralZeroPowerAccelerationTuner extends OpMode {
 /**
  * This is the Predictive Braking Tuner. It runs the robot forward and backward at various power
  * levels, recording the robot’s velocity and position immediately before braking. The motors are
- * then set to zero-power brake mode, which represents the fastest theoretical braking the robot
+ * then set to a reverse power, which represents the fastest theoretical braking the robot
  * can achieve. Once the robot comes to a complete stop, the tuner measures the stopping distance.
  * Using the collected data, it generates a velocity-vs-stopping-distance graph and fits a
  * quadratic curve to model the braking behavior.
@@ -737,10 +737,10 @@ class LateralZeroPowerAccelerationTuner extends OpMode {
  */
 class PredictiveBrakingTuner extends OpMode {
     private static final double[] TEST_POWERS =
-            {1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2};
+            {1, 1, 1, 0.9, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2};
+    private static final double BRAKING_POWER = -0.2;
 
     private static final int DRIVE_TIME_MS = 1000;
-    private static final int BRAKE_WAIT_MS = 500;
 
     private enum State {
         START_MOVE,
@@ -751,17 +751,29 @@ class PredictiveBrakingTuner extends OpMode {
         DONE
     }
 
+    private static class BrakeRecord {
+        double timeMs;
+        Pose pose;
+        double velocity;
+
+        BrakeRecord(double timeMs, Pose pose, double velocity) {
+            this.timeMs = timeMs;
+            this.pose = pose;
+            this.velocity = velocity;
+        }
+    }
+
     private State state = State.START_MOVE;
 
-    private ElapsedTime timer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime();
 
     private int iteration = 0;
-    private double currentPower;
 
     private Vector startPosition;
     private double measuredVelocity;
 
-    private final List<double[]> data = new ArrayList<>();
+    private final List<double[]> velocityToBrakingDistance = new ArrayList<>();
+    private final List<BrakeRecord> brakeData = new ArrayList<>();
 
     @Override
     public void init() {}
@@ -781,11 +793,11 @@ class PredictiveBrakingTuner extends OpMode {
     @Override
     public void start() {
         timer.reset();
-//        follower.usePredictiveBraking();
         follower.update();
         follower.startTeleOpDrive(true);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
         follower.update();
@@ -796,6 +808,8 @@ class PredictiveBrakingTuner extends OpMode {
             return;
         }
 
+        double direction = (iteration % 2 == 0) ? 1 : -1;
+
         switch (state) {
             case START_MOVE: {
                 if (iteration >= TEST_POWERS.length) {
@@ -803,13 +817,9 @@ class PredictiveBrakingTuner extends OpMode {
                     break;
                 }
 
-                currentPower = TEST_POWERS[iteration];
+                double currentPower = TEST_POWERS[iteration];
                 follower.setMaxPower(currentPower);
-                if (iteration % 2 != 0) {
-                    follower.setTeleOpDrive(-1, 0, 0, true);
-                } else {
-                    follower.setTeleOpDrive(1, 0, 0, true);
-                }
+                follower.setTeleOpDrive(direction, 0, 0, true);
 
                 timer.reset();
                 state = State.WAIT_DRIVE_TIME;
@@ -826,7 +836,7 @@ class PredictiveBrakingTuner extends OpMode {
             }
 
             case APPLY_BRAKE: {
-                stopRobot();
+                follower.setTeleOpDrive(BRAKING_POWER * direction, 0, 0, true);
 
                 timer.reset();
                 state = State.WAIT_BRAKE_TIME;
@@ -834,7 +844,14 @@ class PredictiveBrakingTuner extends OpMode {
             }
 
             case WAIT_BRAKE_TIME: {
-                if (timer.milliseconds() >= BRAKE_WAIT_MS || follower.getVelocity().getMagnitude() <= .1) {
+                double t = timer.milliseconds();
+                Pose currentPose = follower.getPose();
+                double currentVelocity = follower.getVelocity().getMagnitude();
+
+                brakeData.add(new BrakeRecord(t, currentPose, currentVelocity));
+
+                if (follower.getVelocity().dot(new Vector(direction,
+                        follower.getHeading())) <= 0) {
                     state = State.RECORD;
                 }
                 break;
@@ -844,10 +861,11 @@ class PredictiveBrakingTuner extends OpMode {
                 Vector endPosition = follower.getPose().getAsVector();
                 double brakingDistance = endPosition.minus(startPosition).getMagnitude();
 
-                data.add(new double[]{measuredVelocity, brakingDistance});
+                velocityToBrakingDistance.add(new double[]{measuredVelocity, brakingDistance});
 
                 telemetryM.debug("Test " + iteration,
-                        stringify(measuredVelocity, brakingDistance));
+                        String.format("v=%.3f  d=%.3f", measuredVelocity,
+                                brakingDistance));
                 telemetryM.update(telemetry);
 
                 iteration++;
@@ -857,22 +875,30 @@ class PredictiveBrakingTuner extends OpMode {
             }
 
             case DONE: {
-                double[] coeffs = quadraticFit(data);
+                stopRobot();
+
+                double[] coefficients = quadraticFit(velocityToBrakingDistance);
 
                 telemetryM.debug("Tuning Complete");
-                telemetryM.debug("kFriction (kQ)", coeffs[1]);
-                telemetryM.debug("kBraking (kD)", coeffs[0]);
+                telemetryM.debug("Braking Profile:");
+                telemetryM.debug("kQuadratic", coefficients[1]);
+                telemetryM.debug("kLinear", coefficients[0]);
                 telemetryM.update(telemetry);
-
+                telemetryM.debug("Tuning Complete");
+                telemetryM.debug("Braking Profile:");
+                telemetryM.debug("kQuadraticFriction", coefficients[1]);
+                telemetryM.debug("kLinearBraking", coefficients[0]);
+                for (BrakeRecord record : brakeData) {
+                    Pose p = record.pose;
+                    telemetryM.debug(String.format("t=%.0f ms, x=%.2f, y=%.2f, θ=%.2f, v=%.2f",
+                            record.timeMs, p.getX(), p.getY(),
+                            p.getHeading(),
+                            record.velocity));
+                }
+                telemetryM.update();
                 break;
             }
         }
-
-        telemetry.update();
-    }
-
-    private String stringify(double v, double d) {
-        return String.format("v=%.3f  d=%.3f", v, d);
     }
 }
 
@@ -1144,6 +1170,48 @@ class Line extends OpMode {
         }
 
         telemetryM.debug("Driving Forward?: " + forward);
+        telemetryM.update(telemetry);
+    }
+}
+
+/**
+ * @author Jacob Ophoven - 18535 Frozen Code
+ */
+class Line90DegreeTurn extends OpMode {
+    @Override
+    public void init() {}
+
+    /** This initializes the Follower and creates the forward and backward Paths. */
+    @Override
+    public void init_loop() {
+        telemetryM.debug("The robot will go forward 48 inches and then sideways to " +
+                "the left 24 inches.");
+        telemetryM.update(telemetry);
+        follower.update();
+        drawCurrent();
+    }
+
+    @Override
+    public void start() {
+        follower.activateAllPIDFs();
+        Path forwards = new Path(new BezierLine(new Pose(0, 0), new Pose(48, 0)));
+        forwards.setConstantHeadingInterpolation(0);
+        Path sideways = new Path(new BezierLine(new Pose(48, 0), new Pose(48,
+                24)));
+        sideways.setConstantHeadingInterpolation(0);
+        follower.followPath(new PathChain(forwards, sideways));
+    }
+
+    /** This runs the OpMode, updating the Follower as well as printing out the debug statements to the Telemetry */
+    @Override
+    public void loop() {
+        follower.update();
+        drawCurrentAndHistory();
+
+        if (!follower.isBusy()) {
+            stopRobot();
+        }
+
         telemetryM.update(telemetry);
     }
 }
