@@ -4,6 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
+import com.pedropathing.ftc.InvertedFTCCoordinates;
+import com.pedropathing.ftc.PoseConverter;
+import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -20,6 +23,8 @@ import dev.nextftc.hardware.driving.FieldCentric;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -38,7 +43,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             .addStep(1, 1, 50)
             .addStep(0, 0, 0)
             .build();
-    private double scalar = 1;
     public static double slowModeScalar = 0.2;
     public static double headingKp = 1;
     public static double headingKi = 0;
@@ -56,6 +60,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             .brakeMode();
     private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
     private final PIDFController headingController = new PIDFController(headingCoefficients);
+    private double scalar = 1;
     //LIMELIGHT
     private Limelight3A limelight;
     private HeadingMode headingMode;
@@ -207,6 +212,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 Math.toDegrees(pedroPose.getHeading())
         );
 
+        Drawing.drawRobot(pedroPose, "green");
+
 
         //LIMELIGHT
         LLResult result = limelight.getLatestResult();
@@ -217,13 +224,14 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             Pose3D botPose = result.getBotpose();
 
             if (botPose != null) {
-                double x = botPose.getPosition().x;
-                double y = botPose.getPosition().y;
-                double headingDeg = botPose.getOrientation().getYaw();
+                Pose2D ftcPose = new Pose2D(DistanceUnit.METER, botPose.getPosition().x, botPose.getPosition().y, AngleUnit.DEGREES, botPose.getOrientation().getYaw());
+                Pose pedroLLPose = PoseConverter.pose2DToPose(ftcPose, InvertedFTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
 
-                FtcDashboard.getInstance().getTelemetry().addData("LL X", x);
-                FtcDashboard.getInstance().getTelemetry().addData("LL Y", y);
-                FtcDashboard.getInstance().getTelemetry().addData("LL Heading (deg)", headingDeg);
+                Drawing.drawRobot(pedroLLPose, "blue");
+
+                FtcDashboard.getInstance().getTelemetry().addData("LL X", pedroLLPose.getX());
+                FtcDashboard.getInstance().getTelemetry().addData("LL Y", pedroLLPose.getY());
+                FtcDashboard.getInstance().getTelemetry().addData("LL Heading (deg)", Math.toDegrees(pedroLLPose.getHeading()));
                 FtcDashboard.getInstance().getTelemetry().addData("Tag Count", result.getFiducialResults().size());
                 FtcDashboard.getInstance().getTelemetry().addData("Staleness (ms)", result.getStaleness());
             } else {
@@ -236,6 +244,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         FtcDashboard.getInstance().getTelemetry().addData("Heading Mode", headingMode);
 
         FtcDashboard.getInstance().getTelemetry().update();
+
+        Drawing.sendPacket();
 
         VelocityInterpolator.setVelocityFromLocation();
     }
