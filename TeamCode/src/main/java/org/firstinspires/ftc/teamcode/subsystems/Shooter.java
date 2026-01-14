@@ -11,6 +11,7 @@ public class Shooter implements Subsystem {
     public static final MotorEx shooterMotor = new MotorEx("shooter");
     public static double onTarget = 1700;
     public static double reversePower = -0.3;
+    public static double tolerance = 40;
 
     public static Mode mode = Mode.OFF;
     public static double kP = 0.01;
@@ -51,5 +52,9 @@ public class Shooter implements Subsystem {
         OFF,
         FORWARD,
         REVERSED
+    }
+
+    public static boolean upToSpeed() {
+        return getVelocity() >= onTarget - tolerance;
     }
 }

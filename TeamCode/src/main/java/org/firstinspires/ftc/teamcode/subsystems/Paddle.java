@@ -13,20 +13,16 @@ import dev.nextftc.ftc.ActiveOpMode;
 @Config
 public class Paddle implements Subsystem {
     public static final Paddle INSTANCE = new Paddle();
-
-    private Paddle() {
-    }
-
     public static double upPosition = 0.57;
     public static double downPosition = 0.92;
-
     private static Servo paddleServo;
-
-    public static final Command up = new InstantCommand(() -> {
-        paddleServo.setPosition(upPosition);
+    public static final Command up = new InstantCommand(() -> paddleServo.setPosition(upPosition));
+    public static final Command down = new InstantCommand(() -> {
         TransferDistanceSensor.resetLocked();
+        paddleServo.setPosition(downPosition);
     });
-    public static final Command down = new InstantCommand(() -> paddleServo.setPosition(downPosition));
+    private Paddle() {
+    }
 
     public static Command shoot() {
         return new SequentialGroup(up, new Delay(0.25), down);

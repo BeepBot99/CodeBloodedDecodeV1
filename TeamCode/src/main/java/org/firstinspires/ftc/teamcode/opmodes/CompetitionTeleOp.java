@@ -47,7 +47,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public static double headingKp = 1;
     public static double headingKi = 0;
     public static double headingKd = 0;
-    public static double shooterTolerance = 40;
     public static boolean useAbsoluteHeading = false;
     public static double rightStickDeadZone = 0.5;
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
@@ -163,7 +162,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesFalse(() -> headingMode = getHeadingMode());
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> {
-            if (Shooter.getVelocity() >= Shooter.onTarget - shooterTolerance && TransferDistanceSensor.hasBall())
+            if (Shooter.upToSpeed() && TransferDistanceSensor.hasBall())
                 Paddle.up.thenWait(0.25).then(Paddle.down).schedule();
             else gamepad1.runRumbleEffect(rumble);
         });
