@@ -65,7 +65,7 @@ public class RedAutoBetter extends NextFTCOpMode {
                 Intake.off,
                 new FollowPath(paths.curvyGateBump),
                 new Delay(1.5),
-                new FollowPath(paths.toSecondShoot),
+                new FollowPath(paths.toSecondShoot), // calls Intake.on after 60 milliseconds
                 shoot3(),
                 Intake.off,
                 new InstantCommand(() -> Shooter.mode = Shooter.Mode.OFF)
