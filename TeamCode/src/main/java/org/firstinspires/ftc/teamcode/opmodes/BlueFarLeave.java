@@ -12,7 +12,6 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Blue Far Leave", preselectTeleOp = "TeleOp")
 public class BlueFarLeave extends NextFTCOpMode {
     public BlueFarLeave() {
         addComponents(

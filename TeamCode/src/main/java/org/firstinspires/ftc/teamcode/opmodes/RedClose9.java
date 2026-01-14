@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
 
-@Autonomous(name = "Red Close 9", preselectTeleOp = "TeleOp")
 public class RedClose9 extends NextFTCOpMode {
 
     public RedClose9() {

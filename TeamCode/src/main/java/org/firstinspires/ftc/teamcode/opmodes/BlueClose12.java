@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Paddle;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityInterpolator;
 
-@Autonomous(name = "Blue Close 12", preselectTeleOp = "TeleOp")
 public class BlueClose12 extends NextFTCOpMode {
 
     public BlueClose12() {

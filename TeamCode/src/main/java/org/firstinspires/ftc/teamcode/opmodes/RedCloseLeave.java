@@ -12,7 +12,6 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Close Leave", preselectTeleOp = "TeleOp")
 public class RedCloseLeave extends NextFTCOpMode {
     public RedCloseLeave() {
         addComponents(
