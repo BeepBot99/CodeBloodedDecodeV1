@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.geometry.Pose;
 import dev.nextftc.extensions.pedro.PedroComponent;
+import org.firstinspires.ftc.teamcode.Globals;
 import smile.interpolation.BilinearInterpolation;
 import smile.interpolation.Interpolation2D;
 
@@ -30,8 +32,9 @@ public final class VelocityInterpolator {
 
     @SuppressWarnings("SuspiciousNameCombination")
     public static void setVelocityFromLocation() {
-        double x = PedroComponent.follower().getPose().getX();
-        double y = PedroComponent.follower().getPose().getY();
+        Pose pose = Globals.alliance == Globals.Alliance.RED ? PedroComponent.follower().getPose() : PedroComponent.follower().getPose().mirror();
+        double x = pose.getX();
+        double y = pose.getY();
 
 
         if (useRegression) {
