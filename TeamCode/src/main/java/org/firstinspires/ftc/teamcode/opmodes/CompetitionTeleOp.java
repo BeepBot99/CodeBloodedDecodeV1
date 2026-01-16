@@ -48,7 +48,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public static double headingKi = 0;
     public static double headingKd = 0;
     public static boolean useAbsoluteHeading = false;
-    public static double rightStickDeadZone = 0.5;
+    public static double absoluteHeadingDeadZone = 0.5;
+    private double absoluteTarget = 0;
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
             .brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("front_right")
@@ -131,13 +132,12 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                             float x = gamepad1.left_stick_x;
                             float y = -gamepad1.left_stick_y;
 
-                            if (Math.hypot(x, y) < rightStickDeadZone) return 0.0;
+                            if (Math.hypot(x, y) >= absoluteHeadingDeadZone) absoluteTarget = Math.atan2(y, x);
 
-                            double angle = Math.atan2(y, x);
-                            if (Globals.alliance == Globals.Alliance.RED) angle -= Math.PI / 2;
-                            else angle += Math.PI / 2;
+                            if (Globals.alliance == Globals.Alliance.RED) absoluteTarget -= Math.PI / 2;
+                            else absoluteTarget += Math.PI / 2;
                             double current = PedroComponent.follower().getHeading();
-                            headingController.updateError(AngleUnit.normalizeRadians(angle - current));
+                            headingController.updateError(AngleUnit.normalizeRadians(absoluteTarget - current));
 
                             FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(current));
                             FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(angle));
