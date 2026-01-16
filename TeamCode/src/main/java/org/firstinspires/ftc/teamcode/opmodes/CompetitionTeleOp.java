@@ -124,8 +124,12 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                             return -headingController.run();
 
                         case ABSOLUTE:
-                            float x = gamepad1.right_stick_x;
-                            float y = -gamepad1.right_stick_y;
+                            if (Math.abs(gamepad1.right_stick_x) > 0.1)
+                                return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
+//                            float x = gamepad1.right_stick_x;
+//                            float y = -gamepad1.right_stick_y;
+                            float x = gamepad1.left_stick_x;
+                            float y = -gamepad1.left_stick_y;
 
                             if (Math.hypot(x, y) < rightStickDeadZone) return 0.0;
 
@@ -162,9 +166,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                 .whenBecomesFalse(() -> headingMode = getHeadingMode());
 
         Gamepads.gamepad1().rightTrigger().greaterThan(0.1).whenBecomesTrue(() -> {
-            if (Shooter.upToSpeed() && TransferDistanceSensor.hasBall())
-                Paddle.up.thenWait(0.25).then(Paddle.down).schedule();
-            else gamepad1.runRumbleEffect(rumble);
+            if (TransferDistanceSensor.hasBall() && Shooter.upToSpeed()) Paddle.shoot().schedule();
+            else gamepad1.rumbleBlips(3);
         });
 
         Gamepads.gamepad1().triangle()
@@ -252,6 +255,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public enum HeadingMode {
         GAMEPAD,
         GOAL,
-        ABSOLUTE
+        ABSOLUTE,
     }
 }

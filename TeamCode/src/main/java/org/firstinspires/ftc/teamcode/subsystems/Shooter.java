@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.delays.WaitUntil;
+import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
 
@@ -23,6 +27,26 @@ public class Shooter implements Subsystem {
 
     public static double getVelocity() {
         return -shooterMotor.getVelocity();
+    }
+
+    public static boolean upToSpeed() {
+        return getVelocity() >= onTarget - tolerance;
+    }
+
+    public static Command shoot3() {
+        return new SequentialGroup(
+                shoot(),
+                shoot(),
+                shoot()
+        );
+    }
+
+    private static Command shoot() {
+        return new SequentialGroup(
+                new WaitUntil(() -> TransferDistanceSensor.hasBall() && Shooter.upToSpeed()),
+                new Delay(0.1),
+                Paddle.shoot()
+        );
     }
 
     @Override
@@ -52,9 +76,5 @@ public class Shooter implements Subsystem {
         OFF,
         FORWARD,
         REVERSED
-    }
-
-    public static boolean upToSpeed() {
-        return getVelocity() >= onTarget - tolerance;
     }
 }

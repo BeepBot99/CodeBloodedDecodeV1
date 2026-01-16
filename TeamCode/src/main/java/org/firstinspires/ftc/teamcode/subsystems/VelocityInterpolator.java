@@ -33,6 +33,7 @@ public final class VelocityInterpolator {
     @SuppressWarnings("SuspiciousNameCombination")
     public static void setVelocityFromLocation() {
         Pose pose = Globals.alliance == Globals.Alliance.RED ? PedroComponent.follower().getPose() : PedroComponent.follower().getPose().mirror();
+        if (Globals.alliance == Globals.Alliance.BLUE) pose = pose.withX(pose.getX() - 2.5);
         double x = pose.getX();
         double y = pose.getY();
 

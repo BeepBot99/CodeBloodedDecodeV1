@@ -12,6 +12,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+@Autonomous
 public class BlueCloseLeave extends NextFTCOpMode {
     public BlueCloseLeave() {
         addComponents(
