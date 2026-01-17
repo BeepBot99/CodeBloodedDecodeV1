@@ -49,7 +49,6 @@ public class CompetitionTeleOp extends NextFTCOpMode {
     public static double headingKd = 0;
     public static boolean useAbsoluteHeading = false;
     public static double absoluteHeadingDeadZone = 0.5;
-    private double absoluteTarget = 0;
     private final MotorEx frontLeftMotor = new MotorEx("front_left")
             .brakeMode();
     private final MotorEx frontRightMotor = new MotorEx("front_right")
@@ -60,6 +59,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
             .brakeMode();
     private final PIDFCoefficients headingCoefficients = new PIDFCoefficients(headingKp, headingKi, headingKd, 0);
     private final PIDFController headingController = new PIDFController(headingCoefficients);
+    private double absoluteTarget = 0;
     private double scalar = 1;
     //LIMELIGHT
     private Limelight3A limelight;
@@ -125,12 +125,8 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                             return -headingController.run();
 
                         case ABSOLUTE:
-                            if (Math.abs(gamepad1.right_stick_x) > 0.1)
-                                return Math.pow(gamepad1.right_stick_x, 2) * Math.signum(gamepad1.right_stick_x);
-//                            float x = gamepad1.right_stick_x;
-//                            float y = -gamepad1.right_stick_y;
-                            float x = gamepad1.left_stick_x;
-                            float y = -gamepad1.left_stick_y;
+                            float x = gamepad1.right_stick_x;
+                            float y = -gamepad1.right_stick_y;
 
                             if (Math.hypot(x, y) >= absoluteHeadingDeadZone) absoluteTarget = Math.atan2(y, x);
 
@@ -140,7 +136,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
                             headingController.updateError(AngleUnit.normalizeRadians(absoluteTarget - current));
 
                             FtcDashboard.getInstance().getTelemetry().addData("Current Heading", Math.toDegrees(current));
-                            FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(angle));
+                            FtcDashboard.getInstance().getTelemetry().addData("Target Heading", Math.toDegrees(absoluteTarget));
 
                             return -headingController.run();
                         default:
@@ -185,7 +181,14 @@ public class CompetitionTeleOp extends NextFTCOpMode {
 
 
         Gamepads.gamepad2().cross()
-                .whenBecomesTrue(() -> PedroComponent.follower().setPose(new Pose(135, 8, Math.PI)));
+                .whenBecomesTrue(() -> {
+                    if (Globals.alliance == Globals.Alliance.BLUE)
+                        PedroComponent.follower().setPose(new Pose(132.5, 8, Math.PI));
+                    else PedroComponent.follower().setPose(new Pose(9, 8, 0));
+                });
+
+        Gamepads.gamepad2().square().whenBecomesTrue(() -> Shooter.waitForSensor = false);
+        Gamepads.gamepad2().triangle().whenBecomesTrue(() -> Shooter.waitForSensor = true);
 
         Gamepads.gamepad2().leftBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.RED);
         Gamepads.gamepad2().rightBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.BLUE);

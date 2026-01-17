@@ -21,6 +21,7 @@ public class Shooter implements Subsystem {
     public static double kP = 0.01;
     public static double kV = 0.00053;
     public static double kS = 0.075;
+    public static boolean waitForSensor = false;
 
     private Shooter() {
     }
@@ -43,7 +44,7 @@ public class Shooter implements Subsystem {
 
     private static Command shoot() {
         return new SequentialGroup(
-                new WaitUntil(() -> TransferDistanceSensor.hasBall() && Shooter.upToSpeed()),
+                new WaitUntil(() -> (!waitForSensor || TransferDistanceSensor.hasBall()) && Shooter.upToSpeed()),
                 new Delay(0.1),
                 Paddle.shoot()
         );

@@ -146,7 +146,7 @@ public class RedAutoBetter extends NextFTCOpMode {
                     .addPath(
                             new BezierLine(
                                     new Pose(118, 59.5),
-                                    new Pose(123, 65)
+                                    new Pose(122, 65)
                             )
                     )
                     .setConstantHeadingInterpolation(0)
@@ -154,7 +154,7 @@ public class RedAutoBetter extends NextFTCOpMode {
             toSecondShoot = follower.pathBuilder()
                     .addPath(
                             new BezierCurve(
-                                    new Pose(123, 62.5),
+                                    new Pose(122, 62.5),
                                     new Pose(95, 59.5),
                                     new Pose(87, 85)
                             )

@@ -21,11 +21,12 @@ public class TransferDistanceSensor implements Subsystem {
 
     @Override
     public void initialize() {
-        distanceSensor = ActiveOpMode.hardwareMap().get(Rev2mDistanceSensor.class, "transfer_distance");
+//        distanceSensor = ActiveOpMode.hardwareMap().get(Rev2mDistanceSensor.class, "transfer_distance");
     }
 
     public double getDistance() {
-        return distanceSensor.getDistance(DistanceUnit.MM);
+        return 0;
+//        return distanceSensor.getDistance(DistanceUnit.MM);
     }
 
     public static boolean hasBall() {

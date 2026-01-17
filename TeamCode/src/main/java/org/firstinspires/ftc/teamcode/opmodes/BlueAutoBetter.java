@@ -40,7 +40,7 @@ public class BlueAutoBetter extends NextFTCOpMode {
         Shooter.mode = Shooter.Mode.OFF;
         Paddle.down.schedule();
         Intake.off.schedule();
-        Globals.alliance = Globals.Alliance.RED;
+        Globals.alliance = Globals.Alliance.BLUE;
     }
 
     @Override
@@ -146,7 +146,7 @@ public class BlueAutoBetter extends NextFTCOpMode {
                     .addPath(
                             new BezierLine(
                                     new Pose(118, 59.5).mirror(),
-                                    new Pose(123, 65).mirror()
+                                    new Pose(122, 65).mirror()
                             )
                     )
                     .setConstantHeadingInterpolation(Math.PI)
@@ -154,7 +154,7 @@ public class BlueAutoBetter extends NextFTCOpMode {
             toSecondShoot = follower.pathBuilder()
                     .addPath(
                             new BezierCurve(
-                                    new Pose(123, 62.5).mirror(),
+                                    new Pose(122, 62.5).mirror(),
                                     new Pose(95, 59.5).mirror(),
                                     new Pose(87, 85).mirror()
                             )
