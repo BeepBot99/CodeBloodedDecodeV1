@@ -21,12 +21,12 @@ import org.firstinspires.ftc.teamcode.subsystems.*;
 
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
-@Autonomous(name = "Red Auto: Better Edition", group = "$", preselectTeleOp = "TeleOp")
-public class RedAutoBetter extends NextFTCOpMode {
+@Autonomous(name = "Blue Auto: Gear Wizards Edition", group = "$", preselectTeleOp = "TeleOp")
+public class BlueAutoGearWizards extends NextFTCOpMode {
     private Paths paths;
     private boolean aborted = false;
 
-    public RedAutoBetter() {
+    public BlueAutoGearWizards() {
         addComponents(
                 new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE, TransferDistanceSensor.INSTANCE),
                 new PedroComponent(Constants::createFollower)
@@ -36,11 +36,11 @@ public class RedAutoBetter extends NextFTCOpMode {
     @Override
     public void onInit() {
         paths = new Paths(follower());
-        follower().setStartingPose(new Pose(118, 128, Math.toRadians(36.5)));
+        follower().setStartingPose(new Pose(118, 128, Math.toRadians(36.5)).mirror());
         Shooter.mode = Shooter.Mode.OFF;
         Paddle.down.schedule();
         Intake.off.schedule();
-        Globals.alliance = Globals.Alliance.RED;
+        Globals.alliance = Globals.Alliance.BLUE;
     }
 
     @Override
@@ -74,10 +74,6 @@ public class RedAutoBetter extends NextFTCOpMode {
                 new InstantCommand(() -> follower().setMaxPower(1)),
                 new FollowPath(paths.toThirdShoot),
                 Shooter.shoot3(),
-                new FollowPath(paths.lastRowIntake), // sets max power to 0.7 after 65% path completion,
-                new InstantCommand(() -> follower().setMaxPower(1)),
-                new FollowPath(paths.toFourthShoot),
-                Shooter.shoot3(),
                 Intake.off,
                 new InstantCommand(() -> Shooter.mode = Shooter.Mode.OFF),
                 new FollowPath(paths.leaveTape)
@@ -101,27 +97,27 @@ public class RedAutoBetter extends NextFTCOpMode {
         public Paths(Follower follower) {
             toFirstShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(118.500, 128.000),
+                                    new Pose(118.500, 128.000).mirror(),
 
-                                    new Pose(87.000, 85.000)
+                                    new Pose(87.000, 85.000).mirror()
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(36.5), Math.toRadians(46))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180 - 36.5), Math.toRadians(180 - 46))
                     .build();
             toMiddleRowIntake = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(87.000, 85.000),
+                                    new Pose(87.000, 85.000).mirror(),
 
-                                    new Pose(95.000, 59.500)
+                                    new Pose(95.000, 59.500).mirror()
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(46), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - 46), Math.PI)
                     .build();
             middleRowIntake = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(95.000, 59.500),
+                                    new Pose(95.000, 59.500).mirror(),
 
-                                    new Pose(126.000, 59.500)
+                                    new Pose(126.000, 59.500).mirror()
                             )
                     )
                     .setTangentHeadingInterpolation()
@@ -129,56 +125,56 @@ public class RedAutoBetter extends NextFTCOpMode {
             curvyGateBump1 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(126, 59.5),
-                                    new Pose(117.5, 59.5)
+                                    new Pose(126, 59.5).mirror(),
+                                    new Pose(118.5, 59.5).mirror()
                             )
                     )
-                    .setConstantHeadingInterpolation(0)
+                    .setConstantHeadingInterpolation(Math.PI)
                     .build();
             curvyGateBump2 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(117.5, 59.5),
-                                    new Pose(122, 65.5)
+                                    new Pose(118.5, 59.5).mirror(),
+                                    new Pose(122, 65.5).mirror()
                             )
                     )
-                    .setConstantHeadingInterpolation(0)
+                    .setConstantHeadingInterpolation(Math.PI)
                     .build();
             toSecondShoot = follower.pathBuilder()
                     .addPath(
                             new BezierCurve(
-                                    new Pose(122, 65.5),
-                                    new Pose(95, 59.5),
-                                    new Pose(87, 85)
+                                    new Pose(122, 65.5).mirror(),
+                                    new Pose(95, 59.5).mirror(),
+                                    new Pose(87, 85).mirror()
                             )
                     )
-                    .setLinearHeadingInterpolation(0, Math.toRadians(46))
+                    .setLinearHeadingInterpolation(Math.PI, Math.toRadians(180 - 46))
                     .build();
             firstRowIntake = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(87, 85),
-                                    new Pose(124, 83.5)
+                                    new Pose(87, 85).mirror(),
+                                    new Pose(124, 83.5).mirror()
                             )
                     )
-                    .setConstantHeadingInterpolation(0)
+                    .setConstantHeadingInterpolation(Math.PI)
                     .build();
             toThirdShoot = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(124, 83.5),
-                                    new Pose(87, 85)
+                                    new Pose(124, 83.5).mirror(),
+                                    new Pose(87, 85).mirror()
                             )
                     )
-                    .setLinearHeadingInterpolation(0, Math.toRadians(46))
+                    .setLinearHeadingInterpolation(Math.PI, Math.toRadians(180 - 46))
                     .build();
             lastRowIntake = follower.pathBuilder()
                     .addPath(
                             new BezierCurve(
-                                    new Pose(87, 85),
-                                    new Pose(95, 54),
-                                    new Pose(85, 35.5),
-                                    new Pose(126, 35.5)
+                                    new Pose(87, 85).mirror(),
+                                    new Pose(95, 54).mirror(),
+                                    new Pose(85, 35.5).mirror(),
+                                    new Pose(126, 35.5).mirror()
                             )
                     )
                     .setTangentHeadingInterpolation()
@@ -187,20 +183,20 @@ public class RedAutoBetter extends NextFTCOpMode {
             toFourthShoot = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(126, 35.5),
-                                    new Pose(87, 85)
+                                    new Pose(126, 35.5).mirror(),
+                                    new Pose(87, 85).mirror()
                             )
                     )
-                    .setLinearHeadingInterpolation(0, Math.toRadians(46))
+                    .setLinearHeadingInterpolation(Math.PI, Math.toRadians(180 - 46))
                     .build();
             leaveTape = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(87, 85),
-                                    new Pose(100, 75)
+                                    new Pose(87, 85).mirror(),
+                                    new Pose(100, 75).mirror()
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(46), Math.PI / 2)
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - 46), Math.PI / 2)
                     .build();
             abort = follower.pathBuilder()
                     .addPath(

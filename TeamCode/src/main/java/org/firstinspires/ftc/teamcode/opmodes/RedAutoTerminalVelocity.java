@@ -21,12 +21,12 @@ import org.firstinspires.ftc.teamcode.subsystems.*;
 
 import static dev.nextftc.extensions.pedro.PedroComponent.follower;
 
-@Autonomous(name = "Red Auto: Better Edition", group = "$", preselectTeleOp = "TeleOp")
-public class RedAutoBetter extends NextFTCOpMode {
+@Autonomous(name = "Red Auto: Terminal Velocity Edition", group = "$", preselectTeleOp = "TeleOp")
+public class RedAutoTerminalVelocity extends NextFTCOpMode {
     private Paths paths;
     private boolean aborted = false;
 
-    public RedAutoBetter() {
+    public RedAutoTerminalVelocity() {
         addComponents(
                 new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Paddle.INSTANCE, TransferDistanceSensor.INSTANCE),
                 new PedroComponent(Constants::createFollower)
@@ -73,10 +73,6 @@ public class RedAutoBetter extends NextFTCOpMode {
                 new FollowPath(paths.firstRowIntake),
                 new InstantCommand(() -> follower().setMaxPower(1)),
                 new FollowPath(paths.toThirdShoot),
-                Shooter.shoot3(),
-                new FollowPath(paths.lastRowIntake), // sets max power to 0.7 after 65% path completion,
-                new InstantCommand(() -> follower().setMaxPower(1)),
-                new FollowPath(paths.toFourthShoot),
                 Shooter.shoot3(),
                 Intake.off,
                 new InstantCommand(() -> Shooter.mode = Shooter.Mode.OFF),

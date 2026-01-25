@@ -14,7 +14,7 @@ public class Intake implements Subsystem {
     private static final MotorEx intakeMotor = new MotorEx("intake");
     private static final CRServoEx transferServo = new CRServoEx("transferServo");
     public static final Command on = new InstantCommand(() -> {
-        intakeMotor.setPower(-1);
+        intakeMotor.setPower(-0.9);
         transferServo.setPower(-1);
     });
     public static final Command off = new InstantCommand(() -> {

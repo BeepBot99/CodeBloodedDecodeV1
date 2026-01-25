@@ -37,7 +37,9 @@ public class Shooter implements Subsystem {
     public static Command shoot3() {
         return new SequentialGroup(
                 shoot(),
+                new Delay(0.2),
                 shoot(),
+                new Delay(0.8),
                 shoot()
         );
     }

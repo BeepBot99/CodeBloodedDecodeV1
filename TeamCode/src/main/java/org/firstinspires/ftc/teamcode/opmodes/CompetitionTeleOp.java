@@ -193,8 +193,7 @@ public class CompetitionTeleOp extends NextFTCOpMode {
         Gamepads.gamepad2().leftBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.RED);
         Gamepads.gamepad2().rightBumper().whenBecomesTrue(() -> Globals.alliance = Globals.Alliance.BLUE);
 
-        Gamepads.gamepad1().rightStickButton()
-                .toggleOnBecomesTrue()
+        Gamepads.gamepad1().dpadUp()
                 .whenBecomesTrue(() -> scalar = slowModeScalar)
                 .whenBecomesFalse(() -> scalar = 1);
     }
